@@ -5,13 +5,17 @@ import { TOKEN_SECRETO } from "../initial/config.js";
 // IMPORTAMOS LA CONEXIÓN A LA DB
 import { CONEXION } from "../initial/db.js";
 // IMPORTAMOS LAS AYUDAS
-import { MENSAJE_DE_ERROR } from "../helpers/Const.js";
+import {
+  MENSAJE_ERROR_CONSULTA_SQL,
+  MENSAJE_DE_ERROR,
+} from "../helpers/Const.js";
 
 export const IniciarSesion = (req, res) => {
   try {
     const { Usuario, Contraseña } = req.body;
     const sql = `SELECT * FROM usuarios WHERE Usuario = ? AND Contraseña = ? AND EstadoUsuario = 'Activo'`;
     CONEXION.query(sql, [Usuario, Contraseña], async (error, result) => {
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       if (result.length > 0) {
         // CREAMOS EL ID EN UN TOKEN
         const TokenDeAcceso = await CrearTokenDeAcceso({

@@ -3,6 +3,7 @@ import { CONEXION } from "../initial/db.js";
 // IMPORTAMOS LAS AYUDAS
 import {
   MENSAJE_DE_ERROR,
+  MENSAJE_ERROR_CONSULTA_SQL,
   MENSAJE_DE_NO_AUTORIZADO,
 } from "../helpers/Const.js";
 import {
@@ -33,45 +34,47 @@ export const RegistrarProducto = async (req, res) => {
     CookieConToken
   );
 
-  if (!RespuestaValidacionToken) res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
-  const sql = `SELECT * FROM productos WHERE NombreProducto = ?`;
-  CONEXION.query(sql, [NombreProducto], (error, result) => {
-    if (error) throw error;
-    if (result.length > 0) {
-      res
-        .status(500)
-        .json(
-          `El producto ${NombreProducto.toUpperCase()} ya existe, por favor intente con otro nombre de usuario ❌`
-        );
-    } else {
-      const sql = `INSERT INTO productos (NombreProducto, AnchoProducto, LargoProducto, AltoProducto, CostoCajaVaciaProducto, SeVendeProducto,  PrecioProducto, LibraExtraProducto, PesoSinCobroProducto, PesoMaximoProducto, ComisionProducto, FechaCreacionProducto, HoraCreacionProducto) VALUES (?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
-      CONEXION.query(
-        sql,
-        [
-          NombreProducto || "",
-          AnchoProducto || "",
-          LargoProducto || "",
-          AltoProducto || "",
-          CostoCajaVaciaProducto || 0,
-          SeVendeProducto || "Si",
-          PrecioProducto || "",
-          CostoLibraExtraProducto || "",
-          PesoSinCobroProducto || "",
-          PesoMaximoProducto || "",
-          ComisionProducto || "",
-        ],
-        (error, result) => {
-          if (error) throw error;
-          res
-            .status(200)
-            .json(
-              `El producto ${NombreProducto.toUpperCase()} ha sido registrado correctamente ✨`
-            );
-        }
-      );
-    }
-  });
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
   try {
+    const sql = `SELECT * FROM productos WHERE NombreProducto = ?`;
+    CONEXION.query(sql, [NombreProducto], (error, result) => {
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+      if (result.length > 0) {
+        res
+          .status(500)
+          .json(
+            `El producto ${NombreProducto.toUpperCase()} ya existe, por favor intente con otro nombre de usuario ❌`
+          );
+      } else {
+        const sql = `INSERT INTO productos (NombreProducto, AnchoProducto, LargoProducto, AltoProducto, CostoCajaVaciaProducto, SeVendeProducto,  PrecioProducto, LibraExtraProducto, PesoSinCobroProducto, PesoMaximoProducto, ComisionProducto, FechaCreacionProducto, HoraCreacionProducto) VALUES (?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
+        CONEXION.query(
+          sql,
+          [
+            NombreProducto || "",
+            AnchoProducto || "",
+            LargoProducto || "",
+            AltoProducto || "",
+            CostoCajaVaciaProducto || 0,
+            SeVendeProducto || "Si",
+            PrecioProducto || "",
+            CostoLibraExtraProducto || "",
+            PesoSinCobroProducto || "",
+            PesoMaximoProducto || "",
+            ComisionProducto || "",
+          ],
+          (error, result) => {
+            if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+            res
+              .status(200)
+              .json(
+                `El producto ${NombreProducto.toUpperCase()} ha sido registrado correctamente ✨`
+              );
+          }
+        );
+      }
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json(MENSAJE_DE_ERROR);
@@ -87,16 +90,16 @@ export const BuscarProductosPorFiltro = async (req, res) => {
     CookieConToken
   );
 
-  if (!RespuestaValidacionToken) {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
-  }
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
   try {
     const sql =
       filtro === ""
         ? `SELECT * FROM productos ORDER BY idProducto DESC`
         : `SELECT * FROM productos WHERE NombreProducto LIKE ? ORDER BY NombreProducto DESC`;
     CONEXION.query(sql, [`%${filtro}%`], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -113,12 +116,12 @@ export const ActualizarEstadoProducto = async (req, res) => {
     CookieConToken
   );
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `UPDATE productos SET StatusProducto = ? WHERE idProducto = ?`;
     CONEXION.query(sql, [StatusProducto, idProducto], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res
         .status(200)
         .json(`Producto ${StatusProducto.toUpperCase()} con éxito ✨`);
@@ -152,7 +155,7 @@ export const ActualizarInformacionDeUnProducto = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sqlValidar = `SELECT * FROM productos WHERE NombreProducto = ? AND idProducto != ?`;
@@ -160,7 +163,7 @@ export const ActualizarInformacionDeUnProducto = async (req, res) => {
       sqlValidar,
       [NombreProducto, idProducto],
       (error, result) => {
-        if (error) throw error;
+        if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
         if (result.length > 0) {
           res
             .status(500)
@@ -185,7 +188,8 @@ export const ActualizarInformacionDeUnProducto = async (req, res) => {
               idProducto,
             ],
             (error, result) => {
-              if (error) throw error;
+              if (error)
+                return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
               res
                 .status(200)
                 .json("El producto ha sido actualizado correctamente ✨");
@@ -209,9 +213,11 @@ export const ObtenerProductosPorAgencia = async (req, res) => {
     CookieConToken
   );
 
-  if (RespuestaValidacionToken) {
-    try {
-      const sql = `SELECT 
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
+  try {
+    const sql = `SELECT 
       p.NombreProducto,
       p.AnchoProducto,
       p.LargoProducto,
@@ -225,16 +231,13 @@ export const ObtenerProductosPorAgencia = async (req, res) => {
       FROM union_agencias_productos uap
       LEFT JOIN productos p ON uap.idProducto = p.idProducto
       WHERE uap.idAgencia = ? AND p.StatusProducto = ?`;
-      CONEXION.query(sql, [idAgencia, "Activo"], (error, result) => {
-        if (error) throw error;
-        res.send(result);
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(MENSAJE_DE_ERROR);
-    }
-  } else {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    CONEXION.query(sql, [idAgencia, "Activo"], (error, result) => {
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+      res.send(result);
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(MENSAJE_DE_ERROR);
   }
 };
 // EN ESTA FUNCIÓN VAMOS A BUSCAR LAS AGENCIAS QUE TIENE EN UN PRODUCTO
@@ -248,12 +251,12 @@ export const BuscarAgenciasQueTieneUnProducto = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `SELECT * FROM union_agencias_productos uap LEFT JOIN agencias a ON uap.idAgencia = a.idAgencia WHERE uap.idProducto = ? AND a.StatusAgencia = ? ORDER BY a.idAgencia DESC`;
     CONEXION.query(sql, [idProducto, "Activa"], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -275,7 +278,7 @@ export const BuscarAgenciasQueNoTieneUnProducto = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     let sql;
@@ -294,7 +297,7 @@ export const BuscarAgenciasQueNoTieneUnProducto = async (req, res) => {
           ORDER BY idAgencia DESC`;
     }
     CONEXION.query(sql, paramBAQNTUP, (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -322,7 +325,7 @@ export const AsignarAgenciaAlProducto = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `INSERT INTO union_agencias_productos (idAgencia, idProducto, PrecioProducto, ComisionProducto, LibraExtraProducto, PesoMaximoProducto, PesoSinCobroProducto) VALUES (?,?,?,?,?,?,?)`;
@@ -338,7 +341,7 @@ export const AsignarAgenciaAlProducto = async (req, res) => {
         PesoSinCobroProducto,
       ],
       (error, result) => {
-        if (error) throw error;
+        if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
         res.status(200).json("La agencia ha sido asignada con éxito ✨");
       }
     );
@@ -358,12 +361,12 @@ export const DesasignarAgenciaAlProducto = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `DELETE FROM union_agencias_productos WHERE idUnionAgenciasProductos = ?`;
     CONEXION.query(sql, [idUnionAgenciasProductos], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.status(200).json("La agencia ha sido desasignada con éxito ✨");
     });
   } catch (error) {
@@ -384,13 +387,14 @@ export const ActualizarSeVendeProducto = async (req, res) => {
   const RespuestaValidacionToken = await ValidarTokenParaPeticion(
     CookieConToken
   );
+
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `UPDATE productos SET SeVendeProducto = ? WHERE idProducto = ?`;
     CONEXION.query(sql, [SeVendeProducto, idProducto], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.status(200).json(MENSAJE_RESPUESTA);
     });
   } catch (error) {
@@ -410,12 +414,12 @@ export const ObtenerProductosActivosYDisponiblesParaVender = async (
     CookieConToken
   );
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `SELECT * FROM productos WHERE StatusProducto = ? AND SeVendeProducto = ?`;
     CONEXION.query(sql, ["Activo", "Si"], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {

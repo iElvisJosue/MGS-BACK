@@ -3,6 +3,7 @@ import { CONEXION } from "../initial/db.js";
 // IMPORTAMOS LAS AYUDAS
 import {
   MENSAJE_DE_ERROR,
+  MENSAJE_ERROR_CONSULTA_SQL,
   MENSAJE_DE_NO_AUTORIZADO,
 } from "../helpers/Const.js";
 import {
@@ -27,53 +28,54 @@ export const RegistrarAgencia = async (req, res) => {
     Direccion,
     CookieConToken,
   } = req.body;
+
   const RespuestaValidacionToken = await ValidarTokenParaPeticion(
     CookieConToken
   );
-  if (RespuestaValidacionToken) {
-    try {
-      const sql = `SELECT * FROM agencias WHERE NombreAgencia = ?`;
-      CONEXION.query(sql, [Agencia], (error, result) => {
-        if (error) throw error;
-        if (result.length > 0) {
-          res
-            .status(500)
-            .json(
-              `La agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia ❌`
-            );
-        } else {
-          const sql = `INSERT INTO agencias (NombreAgencia, NombreContactoAgencia, TelefonoContactoAgencia, CorreoContactoAgencia, PaisAgencia, CodigoPaisAgencia, EstadoAgencia, CiudadAgencia, CodigoPostalAgencia, DireccionAgencia, FechaCreacionAgencia, HoraCreacionAgencia) VALUES (?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
-          CONEXION.query(
-            sql,
-            [
-              Agencia || "",
-              Contacto || "",
-              Telefono || "",
-              Correo || "",
-              PaisAgencia || "",
-              CodigoPaisAgencia || "",
-              Estado || "",
-              Ciudad || "",
-              CP || "",
-              Direccion || "",
-            ],
-            (error, result) => {
-              if (error) throw error;
-              res
-                .status(200)
-                .json(
-                  `La agencia ${Agencia.toUpperCase()} ha sido registrada correctamente ✨`
-                );
-            }
+
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
+  try {
+    const sql = `SELECT * FROM agencias WHERE NombreAgencia = ?`;
+    CONEXION.query(sql, [Agencia], (error, result) => {
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+      if (result.length > 0) {
+        res
+          .status(500)
+          .json(
+            `La agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia ❌`
           );
-        }
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(MENSAJE_DE_ERROR);
-    }
-  } else {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+      } else {
+        const sql = `INSERT INTO agencias (NombreAgencia, NombreContactoAgencia, TelefonoContactoAgencia, CorreoContactoAgencia, PaisAgencia, CodigoPaisAgencia, EstadoAgencia, CiudadAgencia, CodigoPostalAgencia, DireccionAgencia, FechaCreacionAgencia, HoraCreacionAgencia) VALUES (?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
+        CONEXION.query(
+          sql,
+          [
+            Agencia || "",
+            Contacto || "",
+            Telefono || "",
+            Correo || "",
+            PaisAgencia || "",
+            CodigoPaisAgencia || "",
+            Estado || "",
+            Ciudad || "",
+            CP || "",
+            Direccion || "",
+          ],
+          (error, result) => {
+            if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+            res
+              .status(200)
+              .json(
+                `La agencia ${Agencia.toUpperCase()} ha sido registrada correctamente ✨`
+              );
+          }
+        );
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(MENSAJE_DE_ERROR);
   }
 };
 // EN ESTA FUNCIÓN VAMOS A BUSCAR LAS AGENCIAS POR UN FILTRO DETERMINADO
@@ -87,7 +89,7 @@ export const BuscarAgenciasPorFiltro = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken) {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
   }
 
   try {
@@ -96,7 +98,7 @@ export const BuscarAgenciasPorFiltro = async (req, res) => {
         ? `SELECT * FROM agencias ORDER BY idAgencia ASC`
         : `SELECT * FROM agencias WHERE NombreAgencia LIKE ? ORDER BY idAgencia ASC`;
     CONEXION.query(sql, [`%${filtro}%`], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -114,12 +116,12 @@ export const ActualizarEstadoAgencia = async (req, res) => {
     CookieConToken
   );
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `UPDATE agencias SET StatusAgencia = ? WHERE idAgencia = ?`;
     CONEXION.query(sql, [StatusAgencia, idAgencia], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res
         .status(200)
         .json(`Agencia ${StatusAgencia.toUpperCase()} con éxito ✨`);
@@ -152,12 +154,12 @@ export const ActualizarInformacionAgencia = async (req, res) => {
     CookieConToken
   );
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `SELECT * FROM agencias WHERE NombreAgencia = ? AND idAgencia != ?`;
     CONEXION.query(sql, [Agencia, idAgencia], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       if (result.length > 0) {
         return res
           .status(500)
@@ -182,7 +184,7 @@ export const ActualizarInformacionAgencia = async (req, res) => {
             idAgencia,
           ],
           (error, result) => {
-            if (error) throw error;
+            if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
             res
               .status(200)
               .json(
@@ -208,7 +210,7 @@ export const BuscarProductosQueTieneLaAgencia = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `SELECT 
@@ -226,7 +228,7 @@ export const BuscarProductosQueTieneLaAgencia = async (req, res) => {
     LEFT JOIN productos p ON uap.idProducto = p.idProducto 
     WHERE uap.idAgencia = ? AND p.StatusProducto = ?`;
     CONEXION.query(sql, [idAgencia, "Activo"], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -248,7 +250,7 @@ export const BuscarProductosQueNoTieneLaAgencia = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     let sql;
@@ -259,7 +261,7 @@ export const BuscarProductosQueNoTieneLaAgencia = async (req, res) => {
       sql = `SELECT * FROM productos WHERE NombreProducto LIKE ? AND idProducto NOT IN (SELECT idProducto FROM union_agencias_productos WHERE idAgencia = ?) AND StatusProducto = ?`;
     }
     CONEXION.query(sql, paramsBPQNTLA, (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
@@ -287,7 +289,7 @@ export const AsignarProductoAgencia = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `INSERT INTO union_agencias_productos (idAgencia, idProducto, PrecioProducto, ComisionProducto, LibraExtraProducto, PesoMaximoProducto, PesoSinCobroProducto) VALUES (?,?,?,?,?,?,?)`;
@@ -303,7 +305,7 @@ export const AsignarProductoAgencia = async (req, res) => {
         PesoSinCobroProducto,
       ],
       (error, result) => {
-        if (error) throw error;
+        if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
         res.status(200).json("El producto ha sido asignada con éxito ✨");
       }
     );
@@ -323,12 +325,12 @@ export const DesasignarProductoAgencia = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken)
-    return res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
   try {
     const sql = `DELETE FROM union_agencias_productos WHERE idUnionAgenciasProductos = ?`;
     CONEXION.query(sql, [idUnionAgenciasProductos], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.status(200).json("El producto ha sido desasignado con éxito ✨");
     });
   } catch (error) {
@@ -338,7 +340,7 @@ export const DesasignarProductoAgencia = async (req, res) => {
 };
 // EN ESTA FUNCIÓN VAMOS A BUSCAR LAS AGENCIAS POR UN FILTRO DETERMINADO
 // SE UTILIZA EN LAS VISTAS:
-// Paquetería > Realizar pedido > Seleccionar Agencia
+// Paquetería > Nuevo envío > Seleccionar Agencia
 export const BuscarAgenciasPorFiltroYTipoDeUsuario = async (req, res) => {
   const { CookieConToken, filtro, tipoDeUsuario, idDelUsuario } = req.body;
 
@@ -350,7 +352,7 @@ export const BuscarAgenciasPorFiltroYTipoDeUsuario = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken) {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
   }
 
   try {
@@ -364,13 +366,13 @@ export const BuscarAgenciasPorFiltroYTipoDeUsuario = async (req, res) => {
         sql = `SELECT * FROM agencias WHERE NombreAgencia LIKE ? AND StatusAgencia = ? ORDER BY idAgencia ASC`;
       }
       CONEXION.query(sql, paramsBAPFYTU, (error, result) => {
-        if (error) throw error;
+        if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
         res.send(result);
       });
     } else {
       const sql = `SELECT * FROM union_usuarios_agencias uua LEFT JOIN agencias a ON uua.idAgencia = a.idAgencia WHERE uua.idUsuario = ? AND a.StatusAgencia = ? ORDER BY a.idAgencia ASC`;
       CONEXION.query(sql, [idDelUsuario, "Activa"], (error, result) => {
-        if (error) throw error;
+        if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
         res.send(result);
       });
     }
@@ -389,13 +391,13 @@ export const ObtenerAgenciaMGS = async (req, res) => {
   );
 
   if (!RespuestaValidacionToken) {
-    res.status(500).json(MENSAJE_DE_NO_AUTORIZADO);
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
   }
 
   try {
     const sql = `SELECT * FROM agencias WHERE NombreAgencia = ?`;
     CONEXION.query(sql, ["Envía MGS"], (error, result) => {
-      if (error) throw error;
+      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.send(result);
     });
   } catch (error) {
