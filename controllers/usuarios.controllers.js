@@ -146,7 +146,7 @@ export const ActualizarInformacionDeUnUsuario = async (req, res) => {
             res
               .status(200)
               .json(
-                `El usuario ${Usuario.toUpperCase()} ha sido actualizado correctamente ✨`
+                `¡El usuario ${Usuario.toUpperCase()} ha sido actualizado correctamente!`
               );
           }
         );

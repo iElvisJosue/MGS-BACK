@@ -69,7 +69,7 @@ export const RegistrarProducto = async (req, res) => {
             res
               .status(200)
               .json(
-                `El producto ${NombreProducto.toUpperCase()} ha sido registrado correctamente ✨`
+                `¡El producto ${NombreProducto.toUpperCase()} ha sido registrado correctamente!`
               );
           }
         );
@@ -124,7 +124,7 @@ export const ActualizarEstadoProducto = async (req, res) => {
     const sql = `UPDATE productos SET StatusProducto = ? WHERE idProducto = ?`;
     CONEXION.query(sql, [StatusProducto, idProducto], (error, result) => {
       if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
-      res.status(200).json(`El producto ha sido ${TEXTO_ESTADO} con éxito!`);
+      res.status(200).json(`¡El producto ha sido ${TEXTO_ESTADO} con éxito!`);
     });
   } catch (error) {
     console.log(error);
@@ -192,7 +192,7 @@ export const ActualizarInformacionDeUnProducto = async (req, res) => {
                 return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
               res
                 .status(200)
-                .json("El producto ha sido actualizado con éxito!");
+                .json("¡El producto ha sido actualizado con éxito!");
             }
           );
         }

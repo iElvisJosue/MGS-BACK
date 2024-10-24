@@ -42,7 +42,7 @@ export const IniciarSesion = (req, res) => {
         res
           .status(401)
           .json(
-            "Lo sentimos, las credenciales proporcionadas no son correctas, por favor verifique e intente de nuevo."
+            "¡Oops! Parece que el usuario y/o contraseña son incorrectos, por favor verifique e intente de nuevo."
           );
       }
     });
