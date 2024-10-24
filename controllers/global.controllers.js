@@ -15,7 +15,7 @@ export const IniciarSesion = (req, res) => {
     const { Usuario, Contraseña } = req.body;
     const sql = `SELECT * FROM usuarios WHERE Usuario = ? AND Contraseña = ? AND EstadoUsuario = 'Activo'`;
     CONEXION.query(sql, [Usuario, Contraseña], async (error, result) => {
-      if (error) return res.status(500).json(MENSAJE_ERROR_CONSULTA_SQL);
+      if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
       if (result.length > 0) {
         // CREAMOS EL ID EN UN TOKEN
         const TokenDeAcceso = await CrearTokenDeAcceso({
@@ -40,9 +40,9 @@ export const IniciarSesion = (req, res) => {
         res.status(200).json(InformacionDelUsuario);
       } else {
         res
-          .status(404)
+          .status(401)
           .json(
-            "Lo sentimos, las credenciales proporcionadas no son correctas. Por favor, verifica tu nombre de usuario y contraseña e inténtalo de nuevo."
+            "Lo sentimos, las credenciales proporcionadas no son correctas, por favor verifique e intente de nuevo."
           );
       }
     });
