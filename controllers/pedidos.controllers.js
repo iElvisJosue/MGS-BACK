@@ -11,6 +11,7 @@ import {
   ValidarTokenParaPeticion,
   ObtenerHoraActual,
   CrearGuia,
+  CrearGuiaOrden,
   CrearCódigoDeRastreo,
 } from "../helpers/Func.js";
 import {
@@ -1028,7 +1029,7 @@ const EjecutarConsultaValidarOrden = async (
 
   // Generar un número de guía único
   while (GuiaDuplicada) {
-    GuiaOrden = CrearGuia(); // Genera una nueva guía
+    GuiaOrden = CrearGuiaOrden(); // Genera una nueva guía
     GuiaDuplicada = await VerificarGuiaRepetidaOrden(GuiaOrden); // Espera a verificar si está duplicada
     if (GuiaDuplicada) {
       console.log("Guía duplicada, generando una nueva...");
@@ -1088,7 +1089,7 @@ const EjecutarConsultaGuardarOrden = (
   return new Promise((resolve, reject) => {
     const sql = `
     INSERT INTO ordenes (
-      GuiaOrden, ProductoOrden, CostoCajaVaciaOrden, LargoOrden, AnchoOrden, AltoOrden, TotalOrden, UsuarioResponsableOrden, TicketOrden, PaqueteTicketsOrden, FechaCreacionOrden, HoraCreacionOrden) VALUES (?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}'
+      GuiaOrden, ProductoOrden, CostoCajaVaciaOrden, LargoOrden, AnchoOrden, AltoOrden, CantidadProductosOrden, TotalProductosOrden, TotalOrden, UsuarioResponsableOrden, TicketOrden, PaqueteTicketsOrden, FechaCreacionOrden, HoraCreacionOrden) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}'
     )`;
     CONEXION.query(
       sql,
@@ -1099,6 +1100,8 @@ const EjecutarConsultaGuardarOrden = (
         infoOrden.Largo || "",
         infoOrden.Ancho || "",
         infoOrden.Alto || "",
+        infoOrden.Cantidad || 0,
+        infoOrden.TotalProducto || 0,
         infoOrden.TotalDeLaOrden || 0,
         infoOrden.UsuarioResponsable || "No definido",
         NombreDelTicket,

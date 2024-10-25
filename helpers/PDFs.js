@@ -1146,7 +1146,7 @@ export const CrearTicketDeLaOrden = (
         ],
       },
       {
-        text: "Número de guía",
+        text: "Número de orden",
         alignment: "center",
         fontSize: TamañoTextoPequeño,
         margin: [0, 1.5],
@@ -1234,6 +1234,19 @@ export const CrearTicketDeLaOrden = (
         fontSize: TamañoTextoPequeño,
       },
       {
+        text: `Cantidad: ${infoOrden.Cantidad}`,
+        alignment: "center",
+        fontSize: TamañoTextoPequeño,
+      },
+      {
+        text: `Costo Caja: ${infoOrden.CostoCajaVaciaProducto.toLocaleString(
+          "en-US",
+          { style: "currency", currency: "USD" }
+        )}`,
+        alignment: "center",
+        fontSize: TamañoTextoPequeño,
+      },
+      {
         text: `Ancho: ${infoOrden.Ancho || "N/A"} - Largo: ${
           infoOrden.Largo || "N/A"
         } - Alto: ${infoOrden.Alto || "N/A"}`,
@@ -1241,13 +1254,10 @@ export const CrearTicketDeLaOrden = (
         fontSize: TamañoTextoPequeño,
       },
       {
-        text: `TOTAL: ${infoOrden.CostoCajaVaciaProducto.toLocaleString(
-          "en-US",
-          {
-            style: "currency",
-            currency: "USD",
-          }
-        )}`,
+        text: `TOTAL: ${infoOrden.TotalProducto.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        })}`,
         alignment: "center",
         fontSize: TamañoTextoNormal,
         margin: [0, 5, 0, 2.5],
@@ -1398,7 +1408,7 @@ export const CrearPaqueteDeTicketsOrdenes = (
         ],
       },
       {
-        text: "Número de guía",
+        text: "Número de orden",
         alignment: "center",
         fontSize: TamañoTextoPequeño,
         margin: [0, 1.5],
@@ -1486,6 +1496,19 @@ export const CrearPaqueteDeTicketsOrdenes = (
         fontSize: TamañoTextoPequeño,
       },
       {
+        text: `Cantidad: ${infoOrden.Cantidad}`,
+        alignment: "center",
+        fontSize: TamañoTextoPequeño,
+      },
+      {
+        text: `Costo Caja: ${infoOrden.CostoCajaVaciaProducto.toLocaleString(
+          "en-US",
+          { style: "currency", currency: "USD" }
+        )}`,
+        alignment: "center",
+        fontSize: TamañoTextoPequeño,
+      },
+      {
         text: `Ancho: ${infoOrden.Ancho || "N/A"} - Largo: ${
           infoOrden.Largo || "N/A"
         } - Alto: ${infoOrden.Alto || "N/A"}`,
@@ -1493,13 +1516,10 @@ export const CrearPaqueteDeTicketsOrdenes = (
         fontSize: TamañoTextoPequeño,
       },
       {
-        text: `TOTAL: ${infoOrden.CostoCajaVaciaProducto.toLocaleString(
-          "en-US",
-          {
-            style: "currency",
-            currency: "USD",
-          }
-        )}`,
+        text: `TOTAL: ${infoOrden.TotalProducto.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        })}`,
         alignment: "center",
         fontSize: TamañoTextoNormal,
         margin: [0, 5, 0, 2.5],

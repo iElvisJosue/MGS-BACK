@@ -44,7 +44,7 @@ export const RegistrarAgencia = async (req, res) => {
         res
           .status(409)
           .json(
-            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia. `
+            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
           );
       } else {
         const sql = `INSERT INTO agencias (NombreAgencia, NombreContactoAgencia, TelefonoContactoAgencia, CorreoContactoAgencia, PaisAgencia, CodigoPaisAgencia, EstadoAgencia, CiudadAgencia, CodigoPostalAgencia, DireccionAgencia, FechaCreacionAgencia, HoraCreacionAgencia) VALUES (?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
@@ -164,7 +164,7 @@ export const ActualizarInformacionAgencia = async (req, res) => {
         return res
           .status(409)
           .json(
-            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia. `
+            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
           );
       } else {
         const sql = `UPDATE agencias SET NombreAgencia = ?, NombreContactoAgencia = ?, TelefonoContactoAgencia = ?, CorreoContactoAgencia = ?, PaisAgencia = ?, CodigoPaisAgencia = ?, EstadoAgencia = ?, CiudadAgencia = ?, CodigoPostalAgencia = ?, DireccionAgencia = ? WHERE idAgencia = ?`;

@@ -45,6 +45,27 @@ export const CrearGuia = () => {
 
   return Guia;
 };
+export const CrearGuiaOrden = () => {
+  const numeros = "0123456789";
+  const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let Guia = "";
+
+  for (let i = 0; i < 3; i++) {
+    const indiceNum = Math.floor(Math.random() * numeros.length);
+    Guia += numeros[indiceNum];
+  }
+
+  for (let i = 0; i < 4; i++) {
+    const indiceLetra = Math.floor(Math.random() * letras.length);
+    Guia += letras[indiceLetra];
+  }
+
+  Guia = Guia.split("")
+    .sort(() => 0.5 - Math.random())
+    .join("");
+
+  return `DEJ${Guia}`;
+};
 
 export const CrearCódigoDeRastreo = () => {
   return (
