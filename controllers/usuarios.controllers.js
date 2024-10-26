@@ -73,10 +73,10 @@ export const BuscarUsuariosParaAdministrarPorFiltro = async (req, res) => {
   try {
     let sql;
     if (filtro === "") {
-      sql = `SELECT * FROM usuarios WHERE idUsuario != ? ORDER BY idUsuario ASC`;
+      sql = `SELECT * FROM usuarios WHERE idUsuario != ? ORDER BY idUsuario DESC`;
     } else {
       paramBUPAPF.push(`%${filtro}%`);
-      sql = `SELECT * FROM usuarios WHERE idUsuario != ? AND Usuario LIKE ? ORDER BY idUsuario ASC`;
+      sql = `SELECT * FROM usuarios WHERE idUsuario != ? AND Usuario LIKE ? ORDER BY idUsuario DESC`;
     }
     CONEXION.query(sql, paramBUPAPF, (error, result) => {
       if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
