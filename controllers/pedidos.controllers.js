@@ -92,14 +92,15 @@ const EjecutarConsultaGuardarRemitente = (remitente) => {
     PaisRemitente,
     CodigoPaisRemitente,
     EstadoRemitente,
+    CodigoEstadoRemitente,
     CiudadRemitente,
     CodigoPostalRemitente,
     DireccionRemitente,
     ReferenciaRemitente,
   } = remitente;
 
-  const sql = `INSERT INTO remitentes (NombreRemitente, ApellidosRemitente, TelefonoCasaRemitente, CelularRemitente, CorreoRemitente, PaisRemitente, CodigoPaisRemitente, EstadoRemitente, CiudadRemitente, CodigoPostalRemitente, DireccionRemitente, ReferenciaRemitente, FechaCreacionRemitente, HoraCreacionRemitente) 
-  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
+  const sql = `INSERT INTO remitentes (NombreRemitente, ApellidosRemitente, TelefonoCasaRemitente, CelularRemitente, CorreoRemitente, PaisRemitente, CodigoPaisRemitente, EstadoRemitente, CodigoEstadoRemitente, CiudadRemitente, CodigoPostalRemitente, DireccionRemitente, ReferenciaRemitente, FechaCreacionRemitente, HoraCreacionRemitente) 
+  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
 
   return new Promise((resolve, reject) => {
     CONEXION.query(
@@ -113,6 +114,7 @@ const EjecutarConsultaGuardarRemitente = (remitente) => {
         PaisRemitente || "",
         CodigoPaisRemitente || "",
         EstadoRemitente || "",
+        CodigoEstadoRemitente || "",
         CiudadRemitente || "",
         CodigoPostalRemitente || "",
         DireccionRemitente || "",
@@ -139,6 +141,7 @@ const EjecutarConsultaGuardarDestinatario = (destinatario) => {
     PaisDestinatario,
     CodigoPaisDestinatario,
     EstadoDestinatario,
+    CodigoEstadoDestinatario,
     CiudadDestinatario,
     CodigoPostalDestinatario,
     DireccionDestinatario,
@@ -146,7 +149,7 @@ const EjecutarConsultaGuardarDestinatario = (destinatario) => {
     ReferenciaDestinatario,
   } = destinatario;
 
-  const sql = `INSERT INTO destinatarios (NombreDestinatario, ApellidoPaternoDestinatario, ApellidoMaternoDestinatario, TelefonoCasaDestinatario, CelularDestinatario, CorreoDestinatario, PaisDestinatario, CodigoPaisDestinatario, EstadoDestinatario, CiudadDestinatario, CodigoPostalDestinatario, DireccionDestinatario, MunicipioDelegacionDestinatario, ReferenciaDestinatario, FechaCreacionDestinatario, HoraCreacionDestinatario) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
+  const sql = `INSERT INTO destinatarios (NombreDestinatario, ApellidoPaternoDestinatario, ApellidoMaternoDestinatario, TelefonoCasaDestinatario, CelularDestinatario, CorreoDestinatario, PaisDestinatario, CodigoPaisDestinatario, EstadoDestinatario, CodigoEstadoDestinatario, CiudadDestinatario, CodigoPostalDestinatario, DireccionDestinatario, MunicipioDelegacionDestinatario, ReferenciaDestinatario, FechaCreacionDestinatario, HoraCreacionDestinatario) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
 
   return new Promise((resolve, reject) => {
     CONEXION.query(
@@ -161,6 +164,7 @@ const EjecutarConsultaGuardarDestinatario = (destinatario) => {
         PaisDestinatario || "",
         CodigoPaisDestinatario || "",
         EstadoDestinatario || "",
+        CodigoEstadoDestinatario || "",
         CiudadDestinatario || "",
         CodigoPostalDestinatario || "",
         DireccionDestinatario || "",

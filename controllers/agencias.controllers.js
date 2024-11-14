@@ -16,16 +16,17 @@ import {
 // Agencias > Registrar Agencia
 export const RegistrarAgencia = async (req, res) => {
   const {
-    Agencia,
-    Contacto,
-    Telefono,
-    Correo,
+    NombreAgencia,
+    NombreContacto,
+    TelefonoContacto,
+    CorreoContacto,
     PaisAgencia,
     CodigoPaisAgencia,
-    Estado,
-    Ciudad,
-    CP,
-    Direccion,
+    EstadoAgencia,
+    CodigoEstadoAgencia,
+    CiudadAgencia,
+    CodigoPostalAgencia,
+    DireccionAgencia,
     CookieConToken,
   } = req.body;
 
@@ -38,36 +39,37 @@ export const RegistrarAgencia = async (req, res) => {
 
   try {
     const sql = `SELECT * FROM agencias WHERE NombreAgencia = ?`;
-    CONEXION.query(sql, [Agencia], (error, result) => {
+    CONEXION.query(sql, [NombreAgencia], (error, result) => {
       if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
       if (result.length > 0) {
         res
           .status(409)
           .json(
-            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
+            `¡Oops! Parece que la agencia ${NombreAgencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
           );
       } else {
-        const sql = `INSERT INTO agencias (NombreAgencia, NombreContactoAgencia, TelefonoContactoAgencia, CorreoContactoAgencia, PaisAgencia, CodigoPaisAgencia, EstadoAgencia, CiudadAgencia, CodigoPostalAgencia, DireccionAgencia, FechaCreacionAgencia, HoraCreacionAgencia) VALUES (?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
+        const sql = `INSERT INTO agencias (NombreAgencia, NombreContactoAgencia, TelefonoContactoAgencia, CorreoContactoAgencia, PaisAgencia, CodigoPaisAgencia, EstadoAgencia, CodigoEstadoAgencia, CiudadAgencia, CodigoPostalAgencia, DireccionAgencia, FechaCreacionAgencia, HoraCreacionAgencia) VALUES (?,?,?,?,?,?,?,?,?,?,?, CURDATE(),'${ObtenerHoraActual()}')`;
         CONEXION.query(
           sql,
           [
-            Agencia || "",
-            Contacto || "",
-            Telefono || "",
-            Correo || "",
+            NombreAgencia || "",
+            NombreContacto || "",
+            TelefonoContacto || "",
+            CorreoContacto || "",
             PaisAgencia || "",
             CodigoPaisAgencia || "",
-            Estado || "",
-            Ciudad || "",
-            CP || "",
-            Direccion || "",
+            EstadoAgencia || "",
+            CodigoEstadoAgencia || "",
+            CiudadAgencia || "",
+            CodigoPostalAgencia || "",
+            DireccionAgencia || "",
           ],
           (error, result) => {
             if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
             res
               .status(200)
               .json(
-                `¡La agencia ${Agencia.toUpperCase()} ha sido registrada correctamente!`
+                `¡La agencia ${NombreAgencia.toUpperCase()} ha sido registrada correctamente!`
               );
           }
         );
@@ -138,16 +140,17 @@ export const ActualizarInformacionAgencia = async (req, res) => {
   const {
     CookieConToken,
     idAgencia,
-    Agencia,
-    Contacto,
-    Telefono,
-    Correo,
+    NombreAgencia,
+    NombreContacto,
+    TelefonoContacto,
+    CorreoContacto,
     PaisAgencia,
     CodigoPaisAgencia,
-    Estado,
-    Ciudad,
-    CP,
-    Direccion,
+    EstadoAgencia,
+    CodigoEstadoAgencia,
+    CiudadAgencia,
+    CodigoPostalAgencia,
+    DireccionAgencia,
   } = req.body;
 
   const RespuestaValidacionToken = await ValidarTokenParaPeticion(
@@ -158,29 +161,30 @@ export const ActualizarInformacionAgencia = async (req, res) => {
 
   try {
     const sql = `SELECT * FROM agencias WHERE NombreAgencia = ? AND idAgencia != ?`;
-    CONEXION.query(sql, [Agencia, idAgencia], (error, result) => {
+    CONEXION.query(sql, [NombreAgencia, idAgencia], (error, result) => {
       if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
       if (result.length > 0) {
         return res
           .status(409)
           .json(
-            `¡Oops! Parece que la agencia ${Agencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
+            `¡Oops! Parece que la agencia ${NombreAgencia.toUpperCase()} ya existe, por favor intente con otro nombre de agencia.`
           );
       } else {
-        const sql = `UPDATE agencias SET NombreAgencia = ?, NombreContactoAgencia = ?, TelefonoContactoAgencia = ?, CorreoContactoAgencia = ?, PaisAgencia = ?, CodigoPaisAgencia = ?, EstadoAgencia = ?, CiudadAgencia = ?, CodigoPostalAgencia = ?, DireccionAgencia = ? WHERE idAgencia = ?`;
+        const sql = `UPDATE agencias SET NombreAgencia = ?, NombreContactoAgencia = ?, TelefonoContactoAgencia = ?, CorreoContactoAgencia = ?, PaisAgencia = ?, CodigoPaisAgencia = ?, EstadoAgencia = ?, CodigoEstadoAgencia = ?, CiudadAgencia = ?, CodigoPostalAgencia = ?, DireccionAgencia = ? WHERE idAgencia = ?`;
         CONEXION.query(
           sql,
           [
-            Agencia || "",
-            Contacto || "",
-            Telefono || "",
-            Correo || "",
+            NombreAgencia || "",
+            NombreContacto || "",
+            TelefonoContacto || "",
+            CorreoContacto || "",
             PaisAgencia || "",
             CodigoPaisAgencia || "",
-            Estado || "",
-            Ciudad || "",
-            CP || "",
-            Direccion || "",
+            EstadoAgencia || "",
+            CodigoEstadoAgencia || "",
+            CiudadAgencia || "",
+            CodigoPostalAgencia || "",
+            DireccionAgencia || "",
             idAgencia,
           ],
           (error, result) => {
@@ -188,7 +192,7 @@ export const ActualizarInformacionAgencia = async (req, res) => {
             res
               .status(200)
               .json(
-                `¡La agencia ${Agencia.toUpperCase()} ha sido actualizada con éxito!`
+                `¡La agencia ${NombreAgencia.toUpperCase()} ha sido actualizada con éxito!`
               );
           }
         );

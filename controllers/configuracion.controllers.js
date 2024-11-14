@@ -54,3 +54,26 @@ export const ObtenerTiposDeEnvio = async (req, res) => {
     res.status(500).json(MENSAJE_DE_ERROR);
   }
 };
+// EN ESTA FUNCION VAMOS A OBTENER EL MODO OSCURO DEL USUARIO
+// SE UTILIZA EN LAS VISTAS: Realizar Pedido > Remitente
+export const ObtenerApiGoogleMapsAutoCompletado = async (req, res) => {
+  const { CookieConToken } = req.params;
+
+  const RespuestaValidacionToken = await ValidarTokenParaPeticion(
+    CookieConToken
+  );
+
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
+  try {
+    const sql = `SELECT LlaveApi FROM apis WHERE NombreApi = ?`;
+    CONEXION.query(sql, ["Google Maps Autocompletado"], (error, result) => {
+      if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
+      res.status(200).json(result);
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(MENSAJE_DE_ERROR);
+  }
+};
