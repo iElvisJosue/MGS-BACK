@@ -1164,11 +1164,11 @@ export const CrearTicketDeLaOrden = (
         fontSize: TamañoTextoPequeño,
         marginBottom: 7.5,
       },
-      remitente.CelularRemitente || remitente.TelefonoCasaRemitente
+      remitente.TelefonoUnoRemitente || remitente.TelefonoDosRemitente
         ? {
-            text: `Telefono(s): ${remitente.CelularRemitente}${
-              remitente.TelefonoCasaRemitente &&
-              ` - ${remitente.TelefonoCasaRemitente}`
+            text: `Telefono(s): ${remitente.TelefonoUnoRemitente}${
+              remitente.TelefonoDosRemitente &&
+              ` - ${remitente.TelefonoDosRemitente}`
             }`,
             alignment: "left",
             fontSize: TamañoTextoPequeño,
@@ -1426,11 +1426,11 @@ export const CrearPaqueteDeTicketsOrdenes = (
         fontSize: TamañoTextoPequeño,
         marginBottom: 7.5,
       },
-      remitente.CelularRemitente || remitente.TelefonoCasaRemitente
+      remitente.TelefonoUnoRemitente || remitente.TelefonoDosRemitente
         ? {
-            text: `Telefono(s): ${remitente.CelularRemitente}${
-              remitente.TelefonoCasaRemitente &&
-              ` - ${remitente.TelefonoCasaRemitente}`
+            text: `Telefono(s): ${remitente.TelefonoUnoRemitente}${
+              remitente.TelefonoDosRemitente &&
+              ` - ${remitente.TelefonoDosRemitente}`
             }`,
             alignment: "left",
             fontSize: TamañoTextoPequeño,

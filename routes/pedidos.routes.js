@@ -16,6 +16,7 @@ import {
   BuscarOrdenesPorFecha,
   BuscarMovimientosDeUnaOrden,
   BuscarOrdenesPorPaquete,
+  CompletarInformacionDeUnaOrden,
 } from "../controllers/pedidos.controllers.js";
 
 // ALMACENAMOS EL ENRUTADOR
@@ -52,6 +53,8 @@ router.post("/BuscarOrdenesPorFecha", BuscarOrdenesPorFecha);
 router.post("/BuscarMovimientosDeUnaOrden", BuscarMovimientosDeUnaOrden);
 // RUTA PARA BUSCAR LAS ORDENES POR PAQUETE
 router.post("/BuscarOrdenesPorPaquete", BuscarOrdenesPorPaquete);
+// RUTA PARA COMPLETAR LA INFORMACION DE UNA ORDEN
+router.put("/CompletarInformacionDeUnaOrden", CompletarInformacionDeUnaOrden);
 
 // EXPORTAMOS EL ENRUTADOR
 export default router;

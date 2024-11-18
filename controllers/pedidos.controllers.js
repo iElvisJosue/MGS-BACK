@@ -86,8 +86,8 @@ const EjecutarConsultaGuardarRemitente = (remitente) => {
   const {
     NombreRemitente,
     ApellidosRemitente,
-    TelefonoCasaRemitente,
-    CelularRemitente,
+    TelefonoUnoRemitente,
+    TelefonoDosRemitente,
     CorreoRemitente,
     PaisRemitente,
     CodigoPaisRemitente,
@@ -99,7 +99,7 @@ const EjecutarConsultaGuardarRemitente = (remitente) => {
     ReferenciaRemitente,
   } = remitente;
 
-  const sql = `INSERT INTO remitentes (NombreRemitente, ApellidosRemitente, TelefonoCasaRemitente, CelularRemitente, CorreoRemitente, PaisRemitente, CodigoPaisRemitente, EstadoRemitente, CodigoEstadoRemitente, CiudadRemitente, CodigoPostalRemitente, DireccionRemitente, ReferenciaRemitente, FechaCreacionRemitente, HoraCreacionRemitente) 
+  const sql = `INSERT INTO remitentes (NombreRemitente, ApellidosRemitente, TelefonoUnoRemitente, TelefonoDosRemitente, CorreoRemitente, PaisRemitente, CodigoPaisRemitente, EstadoRemitente, CodigoEstadoRemitente, CiudadRemitente, CodigoPostalRemitente, DireccionRemitente, ReferenciaRemitente, FechaCreacionRemitente, HoraCreacionRemitente) 
   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE(),'${ObtenerHoraActual()}')`;
 
   return new Promise((resolve, reject) => {
@@ -108,8 +108,8 @@ const EjecutarConsultaGuardarRemitente = (remitente) => {
       [
         NombreRemitente || "",
         ApellidosRemitente || "",
-        TelefonoCasaRemitente || "",
-        CelularRemitente || "",
+        TelefonoUnoRemitente || "",
+        TelefonoDosRemitente || "",
         CorreoRemitente || "",
         PaisRemitente || "",
         CodigoPaisRemitente || "",
@@ -1063,7 +1063,6 @@ const EjecutarConsultaValidarOrden = async (
       GuiaOrden,
       NombreDelPaqueteDeTickets
     );
-
     console.log("Orden guardada correctamente");
   } catch (error) {
     console.log("Error al guardar la orden:", error);
@@ -1111,24 +1110,42 @@ const EjecutarConsultaGuardarOrden = (
         NombreDelTicket,
         NombreDelPaqueteDeTickets,
       ],
-      (error, result) => {
+      async (error, result) => {
         if (error) {
           return reject(error); // Rechaza la promesa si hay un error
         }
+        const idInformacionCompleta =
+          await EjecutarConsultarGuardarInformacionCompletaDeLaOrden(
+            result.insertId
+          );
         CrearMovimientosPorDefectoOrden(
           GuiaOrden,
           infoOrden.UsuarioResponsable
         );
         CrearTicketDeLaOrden(NombreDelTicket, remitente, infoOrden, GuiaOrden);
-        CrearUnionRemitenteOrden(
+        CrearUnionRemitenteOrdenInformacionCompleta(
           idRemitente,
           result.insertId,
           infoOrden.idAgencia,
-          CodigoRastreo
+          CodigoRastreo,
+          idInformacionCompleta
         );
         resolve(true);
       }
     );
+  });
+};
+const EjecutarConsultarGuardarInformacionCompletaDeLaOrden = (idOrden) => {
+  const sql = `INSERT INTO informacioncompletaorden (idOrden, FechaCreacionInformacionCompletaOrden, HoraCreacionInformacionCompletaOrden)
+  VALUES
+    (?, CURDATE(),'${ObtenerHoraActual()}')`;
+  return new Promise((resolve, reject) => {
+    CONEXION.query(sql, [idOrden], (error, result) => {
+      if (error) {
+        return reject(error); // Rechaza la promesa si hay un error
+      }
+      resolve(result.insertId);
+    });
   });
 };
 const CrearMovimientosPorDefectoOrden = (
@@ -1163,17 +1180,18 @@ const CrearMovimientosPorDefectoOrden = (
     );
   });
 };
-const CrearUnionRemitenteOrden = (
+const CrearUnionRemitenteOrdenInformacionCompleta = (
   idRemitente = 0,
   idOrden = 0,
   idAgencia = 0,
-  CodigoRastreo = ""
+  CodigoRastreo = "",
+  idInformacionCompleta = 0
 ) => {
-  const sql = `INSERT INTO union_remitentes_ordenes (idRemitente, idOrden, idAgencia, CodigoRastreo) VALUES (?,?,?,?)`;
+  const sql = `INSERT INTO union_remitentes_ordenes_informacioncompleta (idRemitente, idOrden, idAgencia, idInformacionCompletaOrden, CodigoRastreo) VALUES (?,?,?,?,?)`;
   return new Promise((resolve, reject) => {
     CONEXION.query(
       sql,
-      [idRemitente, idOrden, idAgencia, CodigoRastreo],
+      [idRemitente, idOrden, idAgencia, idInformacionCompleta, CodigoRastreo],
       (error, result) => {
         if (error) {
           return reject(error); // Rechaza la promesa si hay un error
@@ -1238,7 +1256,7 @@ const BusquedaDeOrdenesParaElAdministrador = (filtro) => {
             o.*,
             a.*
             FROM 
-                union_remitentes_ordenes uro
+                union_remitentes_ordenes_informacioncompleta uro
             LEFT JOIN 
                 remitentes r ON uro.idRemitente = r.idRemitente
             LEFT JOIN 
@@ -1255,7 +1273,7 @@ const BusquedaDeOrdenesParaElAdministrador = (filtro) => {
             o.*,
             a.*
             FROM 
-                union_remitentes_ordenes uro
+                union_remitentes_ordenes_informacioncompleta uro
             LEFT JOIN 
                 remitentes r ON uro.idRemitente = r.idRemitente
             LEFT JOIN 
@@ -1302,7 +1320,7 @@ const BusquedaDeOrdenesParaElUsuario = async (filtro, idDelUsuario) => {
                 o.*,
                 a.*
                 FROM 
-                    union_remitentes_ordenes uro
+                    union_remitentes_ordenes_informacioncompleta uro
                 LEFT JOIN 
                     remitentes r ON uro.idRemitente = r.idRemitente
                 LEFT JOIN 
@@ -1324,7 +1342,7 @@ const BusquedaDeOrdenesParaElUsuario = async (filtro, idDelUsuario) => {
                 o.*,
                 a.*
                 FROM 
-                    union_remitentes_ordenes uro
+                    union_remitentes_ordenes_informacioncompleta uro
                 LEFT JOIN 
                     remitentes r ON uro.idRemitente = r.idRemitente
                 LEFT JOIN 
@@ -1403,7 +1421,7 @@ const BuscarOrdenesPorFechaParaElAdministrador = (
                 uro.CodigoRastreo,
                 r.*, o.*, a.*
               FROM
-                union_remitentes_ordenes uro
+                union_remitentes_ordenes_informacioncompleta uro
               INNER JOIN
                 remitentes r ON uro.idRemitente = r.idRemitente
               INNER JOIN
@@ -1455,7 +1473,7 @@ const BuscarOrdenesPorFechaParaLosEmpleados = async (
                     uro.CodigoRastreo, 
                     r.*, o.*, a.*
                   FROM
-                    union_remitentes_ordenes uro
+                    union_remitentes_ordenes_informacioncompleta uro
                   INNER JOIN
                     remitentes r ON uro.idRemitente = r.idRemitente
                   INNER JOIN
@@ -1505,7 +1523,6 @@ export const BuscarOrdenesPorPaquete = async (req, res) => {
   const RespuestaValidacionToken = await ValidarTokenParaPeticion(
     CookieConToken
   );
-
   if (!RespuestaValidacionToken)
     return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
 
@@ -1513,19 +1530,21 @@ export const BuscarOrdenesPorPaquete = async (req, res) => {
     const sql = `SELECT 
             r.*,
             o.*,
-            a.*
+            a.*,
+            ico.*
             FROM 
-                union_remitentes_ordenes uro
+                union_remitentes_ordenes_informacioncompleta uro
             LEFT JOIN 
                 remitentes r ON uro.idRemitente = r.idRemitente
             LEFT JOIN 
                 ordenes o ON uro.idOrden = o.idOrden
             LEFT JOIN 
                 agencias a ON uro.idAgencia = a.idAgencia
+            LEFT JOIN 
+                informacioncompletaorden ico ON uro.idInformacionCompletaOrden = ico.idInformacionCompletaOrden
             WHERE 
             	uro.CodigoRastreo = ?
             ORDER BY o.GuiaOrden = ? DESC`;
-
     CONEXION.query(sql, [CodigoRastreo, GuiaOrden], (error, result) => {
       if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
       res.status(200).json(result);
@@ -1557,4 +1576,89 @@ export const BuscarMovimientosDeUnaOrden = async (req, res) => {
     console.error(error);
     res.status(500).json(MENSAJE_DE_ERROR);
   }
+};
+// EN ESTA FUNCIÓN VAMOS A COMPLETAR LA INFORMACIÓN DE UNA ORDEN
+// SE UTILIZA EN LAS VISTAS: Paquetería  > Lista De Ordenes > Completar información de la orden
+export const CompletarInformacionDeUnaOrden = async (req, res) => {
+  const {
+    CookieConToken,
+    idOrden,
+    NombrePaletaOrden,
+    VendedorOrden,
+    NombreManagerOrden,
+    NombreVerificadorOrden,
+    FechaIngresoOrden,
+    FechaVerificacionOrden,
+    FechaEnvioOrden,
+    FechaRecibioOrden,
+    MedioDeEnvioOrden,
+    FechaEntregaOrden,
+    HorarioOrden,
+    RastreoOrden,
+    NumeracionPaletaOrden,
+    PaisEntregaOrden,
+    CodigoPaisEntregaOrden,
+    EstadoEntregaOrden,
+    CodigoEstadoEntregaOrden,
+    CiudadEntregaOrden,
+    CodigoPostalEntregaOrden,
+    DireccionEntregaOrden,
+  } = req.body;
+
+  const RespuestaValidacionToken = await ValidarTokenParaPeticion(
+    CookieConToken
+  );
+
+  if (!RespuestaValidacionToken)
+    return res.status(401).json(MENSAJE_DE_NO_AUTORIZADO);
+
+  try {
+    const sql = `UPDATE informacioncompletaorden SET NombrePaletaOrden = ?, VendedorOrden = ?, NombreManagerOrden = ?, NombreVerificadorOrden = ?, FechaIngresoOrden = ?, FechaVerificacionOrden = ?, FechaEnvioOrden = ?, FechaRecibioOrden = ?, MedioDeEnvioOrden = ?, FechaEntregaOrden = ?, HorarioOrden = ?, RastreoOrden = ?, NumeracionPaletaOrden = ?, PaisEntregaOrden = ?, CodigoPaisEntregaOrden = ?, EstadoEntregaOrden = ?, CodigoEstadoEntregaOrden = ?, CiudadEntregaOrden = ?, CodigoPostalEntregaOrden = ?, DireccionEntregaOrden = ? WHERE idOrden = ?`;
+    CONEXION.query(
+      sql,
+      [
+        NombrePaletaOrden || "",
+        VendedorOrden || "",
+        NombreManagerOrden || "",
+        NombreVerificadorOrden || "",
+        FechaIngresoOrden || "",
+        FechaVerificacionOrden || "",
+        FechaEnvioOrden || "",
+        FechaRecibioOrden || "",
+        MedioDeEnvioOrden || "",
+        FechaEntregaOrden || "",
+        HorarioOrden || "",
+        RastreoOrden || "",
+        NumeracionPaletaOrden || "",
+        PaisEntregaOrden || "",
+        CodigoPaisEntregaOrden || "",
+        EstadoEntregaOrden || "",
+        CodigoEstadoEntregaOrden || "",
+        CiudadEntregaOrden || "",
+        CodigoPostalEntregaOrden || "",
+        DireccionEntregaOrden || "",
+        idOrden,
+      ],
+      async (error, result) => {
+        if (error) return res.status(400).json(MENSAJE_ERROR_CONSULTA_SQL);
+        await ActualizarInformacionOrdenCompleta(idOrden);
+        res.status(200).json("¡Información de la orden actualizada con éxito!");
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(MENSAJE_DE_ERROR);
+  }
+};
+const ActualizarInformacionOrdenCompleta = async (idOrden) => {
+  const sql = `UPDATE ordenes SET InformacionCompletadaOrden = ? WHERE idOrden = ?;`;
+  return new Promise((resolve, reject) => {
+    CONEXION.query(sql, ["Si", idOrden], (error, result) => {
+      if (error) {
+        reject(error); // Si hay error, rechaza la promesa
+      } else {
+        resolve(true); // Si todo va bien, resuelve con el insertId
+      }
+    });
+  });
 };
